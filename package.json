@@ -1,0 +1,25 @@
+{
+  "name": "Ropey",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AllureSoul/curly-bassoon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AllureSoul/curly-bassoon/issues"
+  },
+  "homepage": "https://github.com/AllureSoul/curly-bassoon#readme",
+  "dependencies": {
+    "config.json": "0.0.4",
+    "discord.js": "^12.5.1",
+    "express": "^4.17.1"
+  }
+}

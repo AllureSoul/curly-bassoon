@@ -1,0 +1,8 @@
+Name: Nephele
+Age: 18
+Class: Cleric
+Personality: shy, awkward
+Aligment: Lawful Good
+Race: Elf
+Weapon: Spear/Staff
+Created By: <@615068119270162432>

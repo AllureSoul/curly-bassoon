@@ -1,0 +1,8 @@
+Name: Akiyama Nozomi
+Age: 10
+Class: Druid
+Personality: Airheaded, Energetic
+Aligment: Chaotic Good
+Race: Human
+Weapon: Staff
+Created By: <@582195861874802709>
