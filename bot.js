@@ -19,9 +19,16 @@ var characterPath = './Files/Characters/';
 var linkPath = './Files/Links/';
 const footer = require('./Files/Resources/footers.json');
 
+// -- Bot Login --
+const Discord = require("discord.js");
+const { Client, MessageEmbed } = require("discord.js");
+const client = new Discord.Client
+client.login(process.env.DISCORD_TOKEN)
+
 // -- Bot --
 client.on('ready', () => {
 	console.log(`I'm ready!`);
+
 	client.user.setActivity('Online', { type: 'WATCHING' });
 });
 
