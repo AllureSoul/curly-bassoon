@@ -15,12 +15,9 @@ const client = new Discord.Client();
 client.login(process.env.DISCORD_TOKEN);
 const fs = require('fs');
 var link = require('./Files/links.json');
-var rawdata = fs.readFileSync('./Files/dminfo.json');
 var characterPath = './Files/Characters/';
 var linkPath = './Files/Links/';
 const footer = require('./Files/Resources/footers.json');
-let dminfo = JSON.parse(rawdata);
-console.log(dminfo);
 
 // -- Bot --
 client.on('ready', () => {
@@ -30,7 +27,8 @@ client.on('ready', () => {
 
 client.on('message', msg => {
 	if (msg.author.bot) return;
-	if (msg.member.roles.cache.has('804889560588353576')) return;
+	//if (msg.member.roles.cache.has('804889560588353576')) return;
+  if (!msg.content.startsWith === ".") return;
 	//Read DM Info
 	var rawdata = fs.readFileSync('./Files/dminfo.json');
 	let dminfo = JSON.parse(rawdata);
@@ -159,11 +157,12 @@ client.on('message', msg => {
 			};
 			let dmWrite = JSON.stringify(dm);
 			fs.writeFileSync('./Files/dminfo.json', dmWrite);
+      fs.rmdirSync(`./Files/${dminfo.dungeon.userID}`, { recursive: true });
 			msg.reply('The DM has been forcefully resigned.');
 		}
 	}
 	if (msg.author.id === dminfo.dungeon.userID) {
-		if (msg.content === '.close') {
+    if (msg.content === '.close') {
 			msg.channel.updateOverwrite(msg.guild.roles.cache.get(link.rolePlayer), {
 				SEND_MESSAGES: false
 			});
@@ -173,12 +172,89 @@ client.on('message', msg => {
 				SEND_MESSAGES: true
 			});
 		}
+    if (msg.content.startsWith(".dmLink")){
+      const [command, ...nameRaw] = msg.content.split(' ');
+      name = nameRaw.join(' ');
+      try{
+        if (fs.existsSync(`./Files/Characters/${name}.txt`)){
+        console.log(`${dminfo.dungeon.userID}`)
+        msg.reply ("Character Found!")
+        fs.access(`./Files/${dminfo.dungeon.userID}`, (err) => {
+          if (!err){
+          }else{
+            fs.mkdir(`./Files/${dminfo.dungeon.userID}`, (err) =>{
+              if(err){
+                msg.reply("An Error Has occured")
+                return;
+              }else
+              msg.reply("Please Wait, Creating Characters Folder")
+             }
+            )
+          }   
+        })
+          if (fs.existsSync(`./Files/${dminfo.dungeon.userID}/${dminfo.dungeon.userID}.txt`)){
+            var id = parseInt(fs.readFileSync (`./Files/${dminfo.dungeon.userID}/${dminfo.dungeon.userID}.txt`))
+            id = id + 1
+            fs.writeFileSync(`./Files/${dminfo.dungeon.userID}/${dminfo.dungeon.userID}.txt`, `${id}`)
+            fs.writeFileSync(`./Files/${dminfo.dungeon.userID}/${id}.txt`, `${name}`)
+          } else {
+            id = 1
+            fs.writeFileSync(`./Files/${dminfo.dungeon.userID}/${dminfo.dungeon.userID}.txt`, `${id}`)
+            fs.writeFileSync(`./Files/${dminfo.dungeon.userID}/${id}.txt`, `${name}`)
+          }
+          msg.reply(`${name} Has Been Linked!`)
+        }else{
+          msg.reply("Character does not seem to exist")
+          return;
+        }
+      } catch(err){
+        return;
+      }
+    }
+    if (msg.content.startsWith('.dmList')){
+      try{
+        if(fs.existsSync(`./Files/${dminfo.dungeon.userID}/${dminfo.dungeon.userID}.txt`)){
+            var linkArray = []
+            var num = parseInt(fs.readFileSync(`./Files/${dminfo.dungeon.userID}/${dminfo.dungeon.userID}.txt`));
+            for(i = 1; i <= num; i++){
+              var file = fs.readFileSync(`./Files/${dminfo.dungeon.userID}/${i}.txt`)
+              linkArray.push(`${i}. ${file}`);
+            }
+            msg.channel.send(
+              `Linked Characters:\n\n${linkArray.join("\n")}`
+            )
+        }
+      } catch(err){
+        msg.reply("An Error has occured")
+        return;
+      }
+    }
 		if (msg.content.startsWith('.imitate')) {
 			const [command, name, ...message] = msg.content.split(' ');
 			const imitator = new Discord.WebhookClient(
 				'804584094347821056',
 				'F-imzzusDiyvaLcE9ctoo-cdKaQLuhKvrX_w0jDMmayd900Ad5bnfd3vccPal0BfFFzk'
 			);
+			imitator.name = name;
+			imitator.send(message.join(' '));
+		}
+    		if (msg.content.startsWith('.dmSay')) {
+			const [command, id, ...message] = msg.content.split(' ');
+			const imitator = new Discord.WebhookClient(
+				'804584094347821056',
+				'F-imzzusDiyvaLcE9ctoo-cdKaQLuhKvrX_w0jDMmayd900Ad5bnfd3vccPal0BfFFzk'
+			);
+      try{
+        var max = parseInt(fs.readFileSync(`./Files/${dminfo.dungeon.userID}/${dminfo.dungeon.userID}.txt`))
+        if(id > max){
+          msg.reply("That id does not exist!")
+          return;
+        }  
+      } catch(err){
+        msg.reply("An error has occured")
+        return;
+      }
+      name = fs.readFileSync(`./Files/${dminfo.dungeon.userID}/${id}.txt`)
 			imitator.name = name;
 			imitator.send(message.join(' '));
 		}
@@ -222,14 +298,12 @@ client.on('message', msg => {
 				dungeon: 'none',
 				isPresent: 'no'
 			};
-			let dmWrite = JSON.stringify(dm);
+			let dmWrite = JSON.stringify(dm); 
 			fs.writeFileSync('./Files/dminfo.json', dmWrite);
+      fs.rmdirSync(`./Files/${dminfo.dungeon.userID}`, { recursive: true });
 		} else msg.reply('You are not the DM.');
 	}
-
-	//Character Registry
-	if (msg.member.roles.cache.has(link.rolePlayer)) {
-		if (msg.content.startsWith('.characterRegister')) {
+  		if (msg.content.startsWith('.characterRegister')) {
 			let filter = m => m.author.id === msg.author.id;
 			const [command, ...nameRaw] = msg.content.split(' ');
 			name = nameRaw.join(' ');
@@ -238,7 +312,7 @@ client.on('message', msg => {
 				return;
 			}
 			var target = msg.guild.members.cache.get(msg.author.id);
-			target.roles.add(`804889560588353576`);
+			//target.roles.add(`804889560588353576`);
 			fs.writeFileSync(`./Files/creation.txt`);
 			fs.writeFileSync(`${characterPath}${name}.txt`, `Name: ${name}`);
 			var register = msg.author.id;
@@ -404,6 +478,9 @@ client.on('message', msg => {
 					});
 			});
 		}
+
+	//Character Registry
+	if (msg.member.roles.cache.has(link.rolePlayer)) {
 		if (msg.content.startsWith('.characterView')) {
 			const [command, ...nameRaw] = msg.content.split(' ');
 			name = nameRaw.join(' ');
